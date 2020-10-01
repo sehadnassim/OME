@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Server version="7">
+	<Name>OvenMediaEngine</Name>
+	<!-- Host type (origin/edge) -->
+	<Type>origin</Type>
+	<!-- Specify IP address to bind (* means all IPs) -->
+	<IP>*</IP>
+
+	<!-- Settings for the ports to bind -->
+	<Bind>
+		<Providers>
+			<RTMP>
+				<Port>${env:OME_RTMP_PROV_PORT:1935}</Port>
+			</RTMP>
+			<MPEGTS>
+				<!--
+					Listen on port 4000,4001,4004,4005
+					This is just a demonstration to show that you can configure the port in several ways
+				-->
+				<Port>${env:OME_MPEGTS_PROV_PORT:4000-4003,4004,4005/udp}</Port>
+			</MPEGTS>
+		</Providers>
+
+		<Publishers>
+            <!-- The OVT is protocol for ORIGIN-EDGE -->
+			<OVT>
+				<Port>${env:OME_ORIGIN_PORT:9000}</Port>
+			</OVT>
+			<HLS>
+				<Port>${env:OME_HLS_STREAM_PORT:8080}</Port>
+				<!-- If you want to use TLS, specify the TLS port -->
+				<!-- <TLSPort>443</TLSPort> -->
+			</HLS>
+			<DASH>
+				<Port>${env:OME_DASH_STREAM_PORT:8080}</Port>
+				<!-- If you want to use TLS, specify the TLS port -->
+				<!-- <TLSPort>443</TLSPort> -->
+			</DASH>
+			<WebRTC>
+				<Signalling>
+					<Port>${env:OME_SIGNALLING_PORT:3333}</Port>
+					<!-- If you want to use TLS, specify the TLS port -->
+					<!-- <TLSPort>3334</TLSPort> -->
+				</Signalling>
+				<IceCandidates>
+					<IceCandidate>${env:OME_ICE_CANDIDATES:*:10006-10010/udp}</IceCandidate>
+				</IceCandidates>
+			</WebRTC>
+		</Publishers>
+	</Bind>
+
+	<VirtualHosts>
+		<!--
+			You can include multiple XML files by doing the following:
+			<VirtualHost include="sites-enabled/*.xml" />
+		-->
+		<VirtualHost include="VHost*.xml" />
+		<VirtualHost>
+			<Name>default</Name>
+
+			<!-- Settings for multi domain and TLS -->
+			<Domain>
+                <Names>
+				<!-- Domain names
+					<Name>stream1.airensoft.com</Name>
+					<Name>stream2.airensoft.com</Name>
+					<Name>*.sub.airensoft.com</Name>
+				-->
+                    <Name>*</Name>
+                </Names>
+				<!--
+				<TLS>
+					<CertPath>path/to/file.crt</CertPath>
+					<KeyPath>path/to/file.key</KeyPath>
+					<ChainCertPath>path/to/file.crt</ChainCertPath>
+				</TLS>
+				-->
+			</Domain>
+
+			<!-- Settings for applications -->
+			<Applications>
+				<Application>
+					<Name>app</Name>
+					<!-- Application type (live/vod) -->
+					<Type>live</Type>
+                    <Encodes>
+                        <Encode>
+                            <Name>bypass</Name>
+                            <Audio>
+                                <Bypass>true</Bypass>
+                            </Audio>
+                            <Video>
+                                <Bypass>true</Bypass>
+                            </Video>
+                        </Encode>
+                        <Encode>
+                            <Name>opus</Name>
+                            <Audio>
+                                <Codec>opus</Codec>
+                                <Bitrate>128000</Bitrate>
+                                <Samplerate>48000</Samplerate>
+                                <Channel>2</Channel>
+                            </Audio>
+                        </Encode>
+                    </Encodes>
+					<Streams>
+						<Stream>
+							<Name>${OriginStreamName}</Name>
+							<Profiles>
+								<Profile>bypass</Profile>
+								<Profile>opus</Profile>
+							</Profiles>
+						</Stream>
+					</Streams>
+					<Providers>
+						<OVT />
+						<RTMP />
+						<RTSPPull />
+						<MPEGTS>
+							<StreamMap>
+								<!--
+									Set the stream name of the client connected to the port to "stream_${Port}"
+									For example, if a client connets to port 4000, OME creates a "stream_4000" stream
+								-->
+								<Stream>
+									<Name>stream_${Port}</Name>
+									<Port>4000,4001-4004</Port>
+								</Stream>
+								<Stream>
+									<Name>stream_4005</Name>
+									<Port>4005</Port>
+								</Stream>
+							</StreamMap>
+						</MPEGTS>
+					</Providers>
+					<Publishers>
+						<ThreadCount>8</ThreadCount>
+						<OVT />
+						<WebRTC>
+							<Timeout>30000</Timeout>
+						</WebRTC>
+						<HLS>
+							<SegmentDuration>5</SegmentDuration>
+							<SegmentCount>3</SegmentCount>
+							<CrossDomain>
+								<Url>*</Url>
+							</CrossDomain>
+						</HLS>
+						<DASH>
+							<SegmentDuration>5</SegmentDuration>
+							<SegmentCount>3</SegmentCount>
+							<CrossDomain>
+								<Url>*</Url>
+							</CrossDomain>
+						</DASH>
+						<LLDASH>
+							<SegmentDuration>5</SegmentDuration>
+							<CrossDomain>
+								<Url>*</Url>
+							</CrossDomain>
+						</LLDASH>
+					</Publishers>
+				</Application>
+			</Applications>
+		</VirtualHost>
+	</VirtualHosts>
+</Server>

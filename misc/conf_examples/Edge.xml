@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Server version="7">
+	<Name>OvenMediaEngine</Name>
+	<!-- Host type (origin/edge) -->
+	<Type>edge</Type>
+	<!-- Specify IP address to bind (* means all IPs) -->
+	<IP>*</IP>
+
+	<!-- Settings for the ports to bind -->
+	<Bind>
+		<Providers>
+			<!-- Currently, OME doesn't support using the specified port for OVT Provider -->
+			<OVT>
+				<Port>9001</Port>
+			</OVT>
+		</Providers>
+
+		<Publishers>
+            <HLS>
+				<Port>${env:OME_HLS_STREAM_PORT:8090}</Port>
+				<!-- If you want to use TLS, specify the TLS port -->
+				<!-- <TLSPort>8443</TLSPort> -->
+			</HLS>
+            <DASH>
+				<Port>${env:OME_DASH_STREAM_PORT:8090}</Port>
+				<!-- If you want to use TLS, specify the TLS port -->
+				<!-- <TLSPort>8443</TLSPort> -->
+			</DASH>
+			<WebRTC>
+				<Signalling>
+					<Port>${env:OME_SIGNALLING_PORT:3334}</Port>
+					<!-- If you want to use TLS, specify the TLS port -->
+					 <TLSPort>5556</TLSPort>
+				</Signalling>
+				<IceCandidates>
+					<IceCandidate>${env:OME_ICE_CANDIDATES:*:10000-10005/udp}</IceCandidate>
+				</IceCandidates>
+			</WebRTC>
+		</Publishers>
+	</Bind>
+
+	<!-- P2P works only in WebRTC -->
+	<!--
+	<P2P>
+		<MaxClientPeersPerHostPeer>2</MaxClientPeersPerHostPeer>
+	</P2P>
+	-->
+
+	<VirtualHosts>
+		<!-- You can use wildcard like this to include multiple XMLs -->
+		<VirtualHost include="VHost*.xml" />
+		<VirtualHost>
+			<Name>default</Name>
+
+			<!-- Settings for multi domain and TLS -->
+			<Domain>
+				<Names>
+					<!--
+						Domain names
+
+						<Name>stream1.airensoft.com</Name>
+						<Name>stream2.airensoft.com</Name>
+						<Name>*.sub.airensoft.com</Name>
+					-->
+					<Name>*</Name>
+				</Names>
+
+				<TLS>
+
+                      <CertPath>/opt/ovenmediaengine/bin/private/private.key</CertPath>
+                      <KeyPath>/opt/ovenmediaengine/bin/private/certificate.cer</KeyPath>
+                      <ChainCertPath>/opt/ovenmediaengine/bin/private/certificate.cer</ChainCertPath>
+
+				</TLS>
+
+			</Domain>
+
+			<SignedURL>
+                <CryptoKey>${env:SIGNED_URL_CRYPTO_KEY:}</CryptoKey>
+                <QueryStringKey>${env:SIGNED_URL_QUERY_KEY:authtoken}</QueryStringKey>
+            </SignedURL>
+
+			<!-- Settings for ProxyPass (It can specify origin for each path) -->
+			<Origins>
+                <!--
+                <Origin>
+					<Location>/app/stream</Location>
+					<Pass>
+						<Scheme>ovt</Scheme>
+						<Urls>
+							<Url>origin.com:9000/app/stream_720p</Url>
+						</Urls>
+					</Pass>
+				</Origin>
+				<Origin>
+					<Location>/app/</Location>
+					<Pass>
+						<Scheme>ovt</Scheme>
+						<Urls>
+							<Url>origin.com:9000/app/</Url>
+						</Urls>
+					</Pass>
+				</Origin>
+				-->
+				<Origin>
+					<Location>/</Location>
+					<Pass>
+						<Scheme>ovt</Scheme>
+						<Urls>
+							<Url>${env:DEFAULT_ORIGIN_SERVER:}:${env:DEFAULT_ORIGIN_PORT:9000}/</Url>
+						</Urls>
+					</Pass>
+				</Origin>
+			</Origins>
+		</VirtualHost>
+	</VirtualHosts>
+</Server>
