@@ -73,9 +73,9 @@
 
 				<TLS>
 
-                  <CertPath>/opt/ovenmediaengine/bin/private.key</CertPath>
-                  <KeyPath>/opt/ovenmediaengine/bin/certificate.cer</KeyPath>
-                  <ChainCertPath>/opt/ovenmediaengine/bin/certificate.cer</ChainCertPath>
+					<CertPath>/opt/ovenmediaengine/bin/certificate.cer</CertPath>
+					<KeyPath>/opt/ovenmediaengine/bin/private.key</KeyPath>
+					<ChainCertPath>/opt/ovenmediaengine/bin/certificate.cer</ChainCertPath>
 
 				</TLS>
 
