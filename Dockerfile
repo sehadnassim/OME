@@ -157,7 +157,8 @@ RUN \
         mkdir -p ${DIR} && \
         cd ${DIR} && \
         #curl -sLf https://github.com/AirenSoft/OvenMediaEngine/archive/${OME_VERSION}.tar.gz | tar -xz --strip-components=1 && \
-        cp . . && \
+        curl https://github.com/sehadnassim/OME.git && \
+	cp . . && \
         cd src && \
         make release
 

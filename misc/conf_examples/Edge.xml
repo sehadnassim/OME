@@ -29,7 +29,7 @@
 			</DASH>
 			<WebRTC>
 				<Signalling>
-					<Port>${env:OME_SIGNALLING_PORT:3334}</Port>
+					<Port>${env:OME_SIGNALLING_PORT:3335}</Port>
 					<!-- If you want to use TLS, specify the TLS port -->
 					 <TLSPort>5556</TLSPort>
 				</Signalling>
